@@ -53,14 +53,13 @@ function init() {
 	for (var i in characters) {
 		characters[i].bindTo();
 		$(characters[i].sel()).on('click', function a(event) {
-			for (var i in characters) {
-				$(characters[i].sel()).off('click', a);
-				if (event.target.id == characters[i].id) {
-					characters[i].selected = true;
-					phaseTwo();
+			for (var j in characters) {
+				if (event.target.id == characters[j].id) {
+					characters[j].selected = true;
 				}
+				$(characters[j].sel()).off('click');
 			}
-
+			phaseTwo();
 		});
 	}
 }
@@ -72,26 +71,36 @@ function phaseTwo() {
 			$(characters[i].sel()).detach().appendTo('#match');
 		}
 		$(characters[i].sel()).on('click', function b(event) {
-			for (var i in characters) {
-				if (event.target.id == characters[i].id) {
-					characters[i].opponent = true;
-					phaseThree();
+			for (var j in characters) {
+				if (event.target.id == characters[j].id) {
+					characters[j].opponent = true;
 				}
+				$(characters[j].sel()).off('click');
 			}
-
+			phaseThree();
 		});
 	}
 }
 
 function phaseThree() {
-	$(document).off();
+	let actionBtn = "<button id='action'>ATTACK</button>";
+	$('#match').append(actionBtn);
 	for (var i in characters) {
 		if (characters[i].opponent) {
-			$(characters[i].sel()).css('border-color', 'lightred');
+			$(characters[i].sel()).css('border-color', 'red');
 			$(characters[i].sel()).detach().appendTo('#match');
 		}
 	}
 }
+
+// function phaseThree() {
+// 	for (var i in characters) {
+// 		if (characters[i].opponent) {
+// 			$(characters[i].sel()).css('border-color', 'lightred');
+// 			$(characters[i].sel()).detach().appendTo('#match');
+// 		}
+// 	}
+// }
 
 
 init();

@@ -4,6 +4,12 @@
 	font-family: "Helvetica";
 }
 
+#match {
+	display: flex;
+	justify-content: center;
+	font-family: "Helvetica";
+}
+
 .char {
 	position: relative;
 	background-size: 10vw auto;
