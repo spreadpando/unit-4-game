@@ -138,7 +138,7 @@ function win() {
 
 function reset() {
 	let newGame = "<button id='new-game'>New Game</button>"
-	$('#match').append(newGame);
+	$('#banner').append(newGame);
 	$('#new-game').on('click', function () {
 		$('#game').html('');
 		$('#match').html('');
