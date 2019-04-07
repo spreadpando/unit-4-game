@@ -15,27 +15,24 @@ class Character {
 				"</li><li>attack:" + this.ap +
 				"</li><li>counter:" + this.cap + "</li></ul>");
 		};
+		this.update = () => {
+			$(this.sel()).html("<ul style='margin-top:10vw;position:absolute;display:block;background-color:lightgray;'>" + this.id.toUpperCase() + "<li>hp:" + this.hp +
+				"</li><li>attack:" + this.ap +
+				"</li><li>counter:" + this.cap + "</li></ul>");
+		};
 		this.attack = () => {
 			if (this.selected) {
 				return this.ap;
 			}
 			if (this.opponent) {
-				return this.cp;
+				return this.cap;
 			}
 		};
 		this.takeDamage = (damage) => {
-			if (this.hp > 0) {
+			if (this.hp - damage > 0) {
 				this.hp = this.hp - damage;
 			} else {
-				this.die();
-			}
-		};
-		this.die = () => {
-			if (this.selected) {
-				lose();
-			}
-			if (this.opponent) {
-				win();
+				this.hp = 0;
 			}
 		};
 		this.sel = () => {
@@ -43,13 +40,19 @@ class Character {
 		}
 	}
 }
-let darthMaul = new Character(100, 10, 20, 'darth-maul', 'assets/img/darthmaul.png', false, false);
-let oldBen = new Character(100, 10, 20, 'obi-wan', 'assets/img/oldben.jpg', false, false);
-let quiGon = new Character(100, 10, 20, 'qui-gon', 'assets/img/quigon.png', false, false);
-let palpatine = new Character(100, 10, 20, 'palpatine', 'assets/img/palpatine.jpg', false, false);
-let characters = [darthMaul, oldBen, quiGon, palpatine];
+let darthMaul;
+let oldBen;
+let quiGon;
+let palpatine;
+let characters = [];
 
 function init() {
+	darthMaul = new Character(100, 10, 20, 'darth-maul', 'assets/img/darthmaul.png', false, false);
+	oldBen = new Character(100, 10, 20, 'obi-wan', 'assets/img/oldben.jpg', false, false);
+	quiGon = new Character(100, 10, 20, 'qui-gon', 'assets/img/quigon.png', false, false);
+	palpatine = new Character(100, 10, 20, 'palpatine', 'assets/img/palpatine.jpg', false, false);
+	characters = [darthMaul, oldBen, quiGon, palpatine];
+	$("#banner").html('choose your fighter!');
 	for (var i in characters) {
 		characters[i].bindTo();
 		$(characters[i].sel()).on('click', function a(event) {
@@ -65,12 +68,14 @@ function init() {
 }
 
 function phaseTwo() {
+	$("#banner").html('choose your opponent!');
 	for (var i in characters) {
 		if (characters[i].selected) {
 			$(characters[i].sel()).css('border-color', 'lightgreen');
 			$(characters[i].sel()).detach().appendTo('#match');
 		}
 		$(characters[i].sel()).on('click', function b(event) {
+			$("#banner").html('FIGHT!');
 			for (var j in characters) {
 				if (event.target.id == characters[j].id) {
 					characters[j].opponent = true;
@@ -83,16 +88,64 @@ function phaseTwo() {
 }
 
 function phaseThree() {
+	let computer;
+	let player;
 	let actionBtn = "<button id='action'>ATTACK</button>";
 	$('#match').append(actionBtn);
 	for (var i in characters) {
 		if (characters[i].opponent) {
+			computer = characters[i];
 			$(characters[i].sel()).css('border-color', 'red');
 			$(characters[i].sel()).detach().appendTo('#match');
 		}
+		if (characters[i].selected) {
+			player = characters[i];
+		}
 	}
+	$('#action').on('click', function c() {
+		computer.takeDamage(player.attack());
+		computer.update();
+		$('#banner').html(player.id + ' hit ' + computer.id + ' for ' + player.ap + 'hp!');
+		timeOut = setTimeout(function () {
+			player.takeDamage(computer.attack())
+			player.ap *= 2;
+			player.update();
+			$('#banner').html(computer.id + ' hit ' + player.id + ' for ' + computer.cap + 'hp!');
+		}, 1000);
+
+		if (computer.hp <= 0) {
+			win();
+			clearTimeout(timeOut);
+		}
+		if (player.hp <= 0) {
+			lose();
+			clearTimeout(timeOut);
+		}
+		console.log(player);
+	})
 }
 
+function lose() {
+	$("#banner").html('you lost');
+	reset();
+}
+
+function win() {
+	$("#banner").html('you win');
+	reset();
+
+}
+
+function reset() {
+	let newGame = "<button id='new-game'>New Game</button>"
+	$('#match').append(newGame);
+	$('#new-game').on('click', function () {
+		$('#game').html('');
+		$('#match').html('');
+		init();
+
+	})
+}
 // function phaseThree() {
 // 	for (var i in characters) {
 // 		if (characters[i].opponent) {
