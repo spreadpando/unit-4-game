@@ -59,6 +59,8 @@ function init() {
 			for (var j in characters) {
 				if (event.target.id == characters[j].id) {
 					characters[j].selected = true;
+					$(characters[j].sel()).css('border-color', 'lightgreen');
+					$(characters[j].sel()).detach().appendTo('#match');
 				}
 				$(characters[j].sel()).off('click');
 			}
@@ -70,15 +72,13 @@ function init() {
 function phaseTwo() {
 	$("#banner").html('choose your opponent!');
 	for (var i in characters) {
-		if (characters[i].selected) {
-			$(characters[i].sel()).css('border-color', 'lightgreen');
-			$(characters[i].sel()).detach().appendTo('#match');
-		}
 		$(characters[i].sel()).on('click', function b(event) {
 			$("#banner").html('FIGHT!');
 			for (var j in characters) {
 				if (event.target.id == characters[j].id) {
 					characters[j].opponent = true;
+					$(characters[j].sel()).css('border-color', 'red');
+					$(characters[j].sel()).detach().appendTo('#match');
 				}
 				$(characters[j].sel()).off('click');
 			}
@@ -86,20 +86,30 @@ function phaseTwo() {
 		});
 	}
 }
+let defenders = [];
 
 function phaseThree() {
 	let computer;
 	let player;
 	let actionBtn = "<button id='action'>ATTACK</button>";
+	let removeDefenders = (op) => {
+		for (var i in defenders) {
+			if (defenders[i] == op) {
+				$(defenders[i].sel()).remove();
+				defenders.splice(i, 1);
+			}
+		}
+	}
 	$('#match').append(actionBtn);
 	for (var i in characters) {
 		if (characters[i].opponent) {
 			computer = characters[i];
-			$(characters[i].sel()).css('border-color', 'red');
-			$(characters[i].sel()).detach().appendTo('#match');
 		}
 		if (characters[i].selected) {
 			player = characters[i];
+		}
+		if (!(characters[i].selected)) {
+			defenders.push(characters[i]);
 		}
 	}
 	$('#action').on('click', function c() {
@@ -112,18 +122,46 @@ function phaseThree() {
 			player.update();
 			$('#banner').html(computer.id + ' hit ' + player.id + ' for ' + computer.cap + 'hp!');
 		}, 1000);
-
 		if (computer.hp <= 0) {
-			win();
+			console.log(computer);
+			computer.opponent = false;
+			removeDefenders(computer);
+			if (defenders.length == 0) {
+				win();
+			} else {
+				phaseFour();
+			}
 			clearTimeout(timeOut);
 		}
 		if (player.hp <= 0) {
 			lose();
 			clearTimeout(timeOut);
 		}
-		console.log(player);
 	})
 }
+
+function phaseFour() {
+	$('#action').remove();
+	$("#banner").html('choose your next opponent!');
+	for (var i in characters) {
+		$(characters[i].sel()).on('click', function b(event) {
+			$("#banner").html('FIGHT!');
+			for (var j in characters) {
+				if (event.target.id == characters[j].id) {
+					characters[j].opponent = true;
+					$(characters[j].sel()).css('border-color', 'red');
+					$(characters[j].sel()).detach().appendTo('#match');
+				}
+				$(characters[j].sel()).off('click');
+			}
+			phaseThree();
+		});
+	}
+}
+
+
+
+
 
 function lose() {
 	$("#banner").html('you lost');
