@@ -88,18 +88,20 @@ function phaseTwo() {
 			phaseThree();
 		});
 	}
+	console.log(defenders);
 }
 let defenders = [];
+let player;
 
 function phaseThree() {
 	let computer;
-	let player;
 	let actionBtn = "<button id='action'>ATTACK</button>";
 	let removeDefenders = (op) => {
 		for (var i in defenders) {
 			if (defenders[i] == op) {
 				$(defenders[i].sel()).remove();
 				defenders.splice(i, 1);
+				console.log(defenders);
 			}
 		}
 	}
@@ -113,6 +115,7 @@ function phaseThree() {
 		}
 	}
 	$('#action').on('click', function c() {
+
 		computer.takeDamage(player.attack());
 		computer.update();
 		$('#banner').html(player.id + ' hit ' + computer.id + ' for ' + player.ap + 'hp!');
@@ -122,22 +125,22 @@ function phaseThree() {
 			player.update();
 			$('#banner').html(computer.id + ' hit ' + player.id + ' for ' + computer.cap + 'hp!');
 		}, 1000);
-		if (computer.hp <= 0) {
+		if (player.hp === 0) {
+			lose();
+			clearTimeout(timeOut);
+		}
+		if (computer.hp === 0) {
 			computer.opponent = false;
 			removeDefenders(computer);
 			if (defenders.length > 0) {
 				phaseFour();
 			}
+			if (defenders.length === 0) {
+				win();
+				clearTimeout(timeOut);
+			}
 			clearTimeout(timeOut);
 		}
-		if (player.hp <= 0) {
-			lose();
-			clearTimeout(timeOut);
-		}
-		if (defenders.length === 0) {
-			win();
-		}
-
 	})
 }
 
@@ -197,6 +200,8 @@ function reset() {
 
 
 init();
+
+
 //function win
 //function lose
 //function pick opponent
