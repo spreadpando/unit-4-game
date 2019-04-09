@@ -47,10 +47,10 @@ let palpatine;
 let characters = [];
 
 function init() {
-	darthMaul = new Character(100, 10, 20, 'darth-maul', 'assets/img/darthmaul.png', false, false);
-	oldBen = new Character(100, 10, 20, 'obi-wan', 'assets/img/oldben.jpg', false, false);
-	quiGon = new Character(100, 10, 20, 'qui-gon', 'assets/img/quigon.png', false, false);
-	palpatine = new Character(100, 10, 20, 'palpatine', 'assets/img/palpatine.jpg', false, false);
+	darthMaul = new Character(130, 2, 30, 'darth-maul', 'assets/img/darthmaul.png', false, false);
+	oldBen = new Character(110, 4, 10, 'obi-wan', 'assets/img/oldben.jpg', false, false);
+	quiGon = new Character(120, 6, 12, 'qui-gon', 'assets/img/quigon.png', false, false);
+	palpatine = new Character(100, 2, 20, 'palpatine', 'assets/img/palpatine.jpg', false, false);
 	characters = [darthMaul, oldBen, quiGon, palpatine];
 	$("#banner").html('choose your fighter!');
 	for (var i in characters) {
@@ -72,6 +72,9 @@ function init() {
 function phaseTwo() {
 	$("#banner").html('choose your opponent!');
 	for (var i in characters) {
+		if (!(characters[i].selected)) {
+			defenders.push(characters[i]);
+		}
 		$(characters[i].sel()).on('click', function b(event) {
 			$("#banner").html('FIGHT!');
 			for (var j in characters) {
@@ -108,9 +111,6 @@ function phaseThree() {
 		if (characters[i].selected) {
 			player = characters[i];
 		}
-		if (!(characters[i].selected)) {
-			defenders.push(characters[i]);
-		}
 	}
 	$('#action').on('click', function c() {
 		computer.takeDamage(player.attack());
@@ -123,12 +123,9 @@ function phaseThree() {
 			$('#banner').html(computer.id + ' hit ' + player.id + ' for ' + computer.cap + 'hp!');
 		}, 1000);
 		if (computer.hp <= 0) {
-			console.log(computer);
 			computer.opponent = false;
 			removeDefenders(computer);
-			if (defenders.length == 0) {
-				win();
-			} else {
+			if (defenders.length > 0) {
 				phaseFour();
 			}
 			clearTimeout(timeOut);
@@ -137,6 +134,10 @@ function phaseThree() {
 			lose();
 			clearTimeout(timeOut);
 		}
+		if (defenders.length === 0) {
+			win();
+		}
+
 	})
 }
 
@@ -175,7 +176,8 @@ function win() {
 }
 
 function reset() {
-	let newGame = "<button id='new-game'>New Game</button>"
+	let newGame = "<button id='new-game'>New Game</button>";
+	defenders = [];
 	$('#banner').append(newGame);
 	$('#new-game').on('click', function () {
 		$('#game').html('');
